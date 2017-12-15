@@ -32,7 +32,7 @@
   <mat-card *ngIf="connected">
     <mat-card-title>Head Position</mat-card-title>
     <mat-card-content>
-      <app-head-view [xyz]="accelerometer"></app-head-view>
+      <app-head-view [acceleration]="acceleration" [gyro]="gyro"></app-head-view>
     </mat-card-content>
   </mat-card>
   <mat-card *ngIf="data">

@@ -1,7 +1,10 @@
+import { Subscription } from 'rxjs/Subscription';
 import { Component, Input, OnInit, ElementRef, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import { zip } from 'rxjs/observable/zip';
 import { filter, takeUntil } from 'rxjs/operators';
+import * as AHRS from 'ahrs';
 
 export interface XYZ {
   x: number;
@@ -18,7 +21,8 @@ import 'imports-loader?THREE=three!three/examples/js/loaders/GLTF2Loader';
   styleUrls: ['./head-view.component.css']
 })
 export class HeadViewComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() xyz: Observable<XYZ>;
+  @Input() acceleration: Observable<XYZ>;
+  @Input() gyro: Observable<XYZ>;
 
   modelLoaded = false;
 
@@ -27,6 +31,8 @@ export class HeadViewComponent implements OnInit, OnChanges, OnDestroy {
   private camera: THREE.Camera;
   private renderer: THREE.WebGLRenderer;
   private headModel: THREE.Mesh | null = null;
+  private sensorSubscription: Subscription;
+  private ahrs = new AHRS({ sampleInterval: 52 });
 
   constructor(private element: ElementRef) {
     this.scene = new THREE.Scene();
@@ -60,17 +66,28 @@ export class HeadViewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.xyz && this.xyz) {
-      this.xyz.pipe(
+    if ((changes.acceleration || changes.gyro)) {
+      if (this.sensorSubscription) {
+        this.sensorSubscription.unsubscribe();
+      }
+      if (!this.acceleration || !this.gyro) {
+        return;
+      }
+      this.sensorSubscription = zip(this.acceleration, this.gyro).pipe(
         takeUntil(this.destroy),
         filter(() => this.modelLoaded)
-      )
-        .subscribe(acceleration => {
-          const gVector = new THREE.Vector3(acceleration.y, -acceleration.x, acceleration.z);
-          gVector.applyAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
-          const yAxis = new THREE.Vector3(0, 1, 0);
-          this.headModel.quaternion.setFromUnitVectors(yAxis, gVector.clone().normalize());
-        });
+      ).subscribe(([acceleration, gyro]) => {
+        const ac = 1 / 16510.;
+        const [ax, ay, az] = [acceleration.x * ac, acceleration.y * ac, acceleration.z * ac];
+        const gc = 0.0074768 / 180.0 * Math.PI;
+        const [gx, gy, gz] = [gyro.x * gc, gyro.y * gc, gyro.z * gc];
+        this.ahrs.update(gx, gy, gz, ax, ay, az);
+        const { x, y, z, w } = this.ahrs.getQuaternion();
+        this.headModel.quaternion.x = x;
+        this.headModel.quaternion.y = y;
+        this.headModel.quaternion.z = z;
+        this.headModel.quaternion.w = w;
+      });
     }
   }
 

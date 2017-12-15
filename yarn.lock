@@ -427,6 +427,10 @@ agent-base@2:
     extend "~3.0.0"
     semver "~5.0.1"
 
+ahrs@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/ahrs/-/ahrs-1.1.6.tgz#1e4430510a99ff11b62fff22b049b49858d0f6dc"
+
 ajv-keywords@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-2.1.1.tgz#617997fc5f60576894c435f940d819e135b80762"

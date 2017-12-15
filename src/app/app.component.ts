@@ -3,8 +3,9 @@ import { MatSnackBar } from '@angular/material';
 
 import { MuseClient, MuseControlResponse, zipSamples, EEGSample } from 'muse-js';
 import { Observable } from 'rxjs/Observable';
+import { from } from 'rxjs/observable/from';
 import { Subject } from 'rxjs/Subject';
-import { map, share, tap, takeUntil } from 'rxjs/operators';
+import { map, mergeMap, share, tap, takeUntil } from 'rxjs/operators';
 
 import { XYZ } from './head-view/head-view.component';
 
@@ -19,7 +20,8 @@ export class AppComponent implements OnInit, OnDestroy {
   data: Observable<EEGSample> | null;
   batteryLevel: Observable<number> | null;
   controlResponses: Observable<MuseControlResponse>;
-  accelerometer: Observable<XYZ>;
+  acceleration: Observable<XYZ>;
+  gyro: Observable<XYZ>;
   destroy = new Subject<void>();
 
   private muse = new MuseClient();
@@ -59,10 +61,14 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy),
         map(t => t.batteryLevel)
       );
-      this.accelerometer = this.muse.accelerometerData.pipe(
+      this.acceleration = this.muse.accelerometerData.pipe(
         takeUntil(this.destroy),
-        map(reading => reading.samples[reading.samples.length - 1])
+        mergeMap(reading => from(reading.samples))
       );
+      this.gyro = this.muse.gyroscopeData.pipe(
+        takeUntil(this.destroy),
+        mergeMap(reading => from(reading.samples))
+      ),
       await this.muse.deviceInfo();
     } catch (err) {
       this.snackBar.open('Connection failed: ' + err.toString(), 'Dismiss');
