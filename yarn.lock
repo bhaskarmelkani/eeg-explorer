@@ -5180,9 +5180,9 @@ multicast-dns@^6.0.1:
     dns-packet "^1.0.1"
     thunky "^0.1.0"
 
-muse-js@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/muse-js/-/muse-js-1.0.0.tgz#1b08be7f7311fab03e2ca594404577399b9ff652"
+muse-js@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/muse-js/-/muse-js-2.0.0.tgz#70e26ded2f1353e32c8be9941bb47e4987cfb036"
   dependencies:
     "@types/text-encoding" "^0.0.32"
     "@types/web-bluetooth" "^0.0.2"

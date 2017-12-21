@@ -77,9 +77,8 @@ export class HeadViewComponent implements OnInit, OnChanges, OnDestroy {
         takeUntil(this.destroy),
         filter(() => this.modelLoaded)
       ).subscribe(([acceleration, gyro]) => {
-        const ac = 1 / 16510.;
-        const [ax, ay, az] = [acceleration.x * ac, acceleration.y * ac, acceleration.z * ac];
-        const gc = 0.0074768 / 180.0 * Math.PI;
+        const [ax, ay, az] = [acceleration.x, acceleration.y, acceleration.z];
+        const gc = Math.PI / 180.0;
         const [gx, gy, gz] = [gyro.x * gc, gyro.y * gc, gyro.z * gc];
         this.ahrs.update(gx, gy, gz, ax, ay, az);
         const { x, y, z, w } = this.ahrs.getQuaternion();
