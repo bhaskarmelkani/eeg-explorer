@@ -8,6 +8,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://unpkg.com/mqtt@2.18.1/dist/mqtt.min.js"></script>
+  <script>
+    var client = mqtt.connect({ port: 3000, host: 'localhost', keepalive: 10000}); // you add a ws:// url here
+console.log('----------')
+    window.mqtt = client;
+    client.subscribe("/eeg")
+
+    client.on("message", function (topic, payload) {
+      console.log([topic, payload].join(": "))
+    })
+
+  </script>
 </head>
 <body>
   <app-root>Loading Muse EEG Explorer...</app-root>

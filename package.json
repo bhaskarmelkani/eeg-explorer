@@ -27,6 +27,8 @@
     "core-js": "^2.5.1",
     "fili": "^2.0.0",
     "hammerjs": "^2.0.8",
+    "mqtt": "^2.18.1",
+    "mqtt-level-store": "^2.0.0",
     "muse-js": "^3.0.1",
     "rxjs": "^6.1.0",
     "smoothie": "^1.33.0",

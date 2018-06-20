@@ -112,9 +112,21 @@ export class TimeSeriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   draw(timestamp: number, amplitude: number, index: number) {
     this.uMeans[index] = 0.995 * this.uMeans[index] + 0.005 * amplitude;
-    this.uVrms[index] = Math.sqrt(0.995 * this.uVrms[index] ** 2 + 0.005 * (amplitude - this.uMeans[index]) ** 2);
+
+    const uvrms = Math.sqrt(0.995 * this.uVrms[index] ** 2 + 0.005 * (amplitude - this.uMeans[index]) ** 2);
+    this.uVrms[index] = uvrms;
 
     this.lines[index].append(timestamp, amplitude);
     this.amplitudes[index] = amplitude.toFixed(2);
+
+    if(typeof window['client'] !== 'undefined'){
+      // window['client'].publish('/eeg', { timeStamp: sample.timestamp, value: sample.value, electrode: sample.electrode });
+
+      window['client'].publish('/eeg', JSON.stringify({
+        index: index,
+        value: uvrms
+      }))
+    }
+
   }
 }
